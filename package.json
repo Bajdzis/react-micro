@@ -1,0 +1,11 @@
+{
+  "name": "react-micro",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  }
+}
