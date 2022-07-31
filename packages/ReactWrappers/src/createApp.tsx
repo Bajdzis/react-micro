@@ -16,19 +16,21 @@ export class AppService<SlotKeys extends string, D extends DependenciesService<a
 
     addSlot<
         SlotKey extends string,
-        DKey extends DependenciesServiceKey<D>,
-        Obj = DependenciesServiceObj<D>,
-        Component = React.ComponentType< {
-            dependencies: Pick<Obj, DKey>;
+        DKey extends DependenciesServiceKey<D>[],
+        DependenciesComponent extends Pick<DependenciesServiceObj<D>, DKey[number]>,
+        Component extends React.ComponentType< {
+            dependencies: DependenciesComponent;
         } >
-    >(key: SlotKey, componentCreator: () => Promise<Component> | Component, depts: DKey[]) {
+    >(key: SlotKey, componentCreator: () => Component | Promise<Component>, depts: DKey) {
 
         const newSlot: React.ComponentType<{}> = React.lazy(async () => {
-            const dependencies = await this.dependenciesService.getDependencies(depts);
-            const Comp = await componentCreator();
+            const [dependencies, Comp] = await Promise.all([
+                this.dependenciesService.getDependencies(depts),
+                componentCreator()
+            ]);
 
             return {
-                // @ts-ignore
+                //@ts-ignore
                 default: () => <Comp dependencies={dependencies} />
             };
         })
@@ -41,11 +43,11 @@ export class AppService<SlotKeys extends string, D extends DependenciesService<a
         return new AppService<SlotKeys | SlotKey, D>(this.dependenciesService, newSlots);
     }
 
-    createApp(Layout: React.FC<LayoutProps<SlotKeys>>) {
+    createApp<Slots extends SlotKeys>(Layout: React.FC<LayoutProps<Slots>>) {
         return () => <Layout slots={this.slots}/>;
     }
 
-    static createDependenciesService<D extends DependenciesService<any, any>>(dependenciesService: D){
+    static createAppCreator<D extends DependenciesService<any, any>>(dependenciesService: D){
         return new AppService<never,D>(dependenciesService,{});
     }
 }

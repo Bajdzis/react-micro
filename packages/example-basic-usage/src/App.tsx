@@ -3,7 +3,7 @@ import { Footer } from './components/Footer';
 import { Menu } from './components/Menu';
 import { dependencies } from './dependencies';
 
- const appCreator = AppService.createDependenciesService(dependencies)
+ const appCreator = AppService.createAppCreator(dependencies)
   .addSlot('Content', async () => {
     const Content = await import('./components/Content');
     return Content.default;
