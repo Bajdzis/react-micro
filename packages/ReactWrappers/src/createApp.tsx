@@ -1,40 +1,51 @@
-import { DependenciesService } from "@react-micro/dependencies-service";
+import { DependenciesService, DependenciesServiceKey, DependenciesServiceObj } from "@react-micro/dependencies-service";
 import React from "react";
 
-interface SlotProps<D extends DependenciesService<any>> {
-    dependencies: D
-}
-
-export interface LayoutProps< RootSlotKeys extends string,D extends DependenciesService<any> = DependenciesService<any>>{
+export interface LayoutProps<RootSlotKeys extends string> {
     slots: {[key in RootSlotKeys]: React.ComponentType<{}>}
-    dependencies: D;
 }
 
-const sleep = () => {
-    return new Promise<void>((resolve) => setTimeout(() => {
-        resolve();
-    }, 2000))
-}
+export class AppService<SlotKeys extends string, D extends DependenciesService<any,any>> {
+    private dependenciesService: D;
+    private slots: {[key in SlotKeys]: React.ComponentType<{}>};
 
-export const createApp = <D extends DependenciesService<any>, SlotKeys extends string>(Layout: React.FC<LayoutProps<SlotKeys,D>>, dependencies: D, components: {[key in SlotKeys]: React.FC<SlotProps<D>> }) =>{
-    let slots: {[key in SlotKeys]: React.FC<{}>} = Object.entries(components).reduce<Partial<{[key in SlotKeys]: React.FC<{}>}>>((slots, entry) => {
-        const [key, Component] : [SlotKeys, React.FC<SlotProps<D>>] = entry as any;
+    private constructor(dependenciesService: D, slots: {[key in SlotKeys]: React.ComponentType<{}>}){
+        this.slots = slots;
+        this.dependenciesService = dependenciesService;
+    }
 
-        const newSlot : React.ComponentType<{}> = React.lazy(async () => {
-            console.log(`start load ${key}`);
-            await sleep();
-            console.log(`end load ${key}`);
+    addSlot<
+        SlotKey extends string,
+        DKey extends DependenciesServiceKey<D>,
+        Obj = DependenciesServiceObj<D>,
+        Component = React.ComponentType< {
+            dependencies: Pick<Obj, DKey>;
+        } >
+    >(key: SlotKey, componentCreator: () => Promise<Component> | Component, depts: DKey[]) {
+
+        const newSlot: React.ComponentType<{}> = React.lazy(async () => {
+            const dependencies = await this.dependenciesService.getDependencies(depts);
+            const Comp = await componentCreator();
+
             return {
-                default: () => <Component dependencies={dependencies} />
+                // @ts-ignore
+                default: () => <Comp dependencies={dependencies} />
             };
         })
 
+        const newSlots = {
+            ...this.slots,
+            [key]: newSlot
+        } as {[key in SlotKeys | SlotKey]: React.ComponentType<{}>};
 
-        slots[key] = newSlot;
+        return new AppService<SlotKeys | SlotKey, D>(this.dependenciesService, newSlots);
+    }
 
-        return slots;
+    createApp(Layout: React.FC<LayoutProps<SlotKeys>>) {
+        return () => <Layout slots={this.slots}/>;
+    }
 
-    }, {}) as  {[key in SlotKeys]: React.FC<{}>};
-
-    return () => <Layout dependencies={dependencies} slots={slots}/>;
+    static createDependenciesService<D extends DependenciesService<any, any>>(dependenciesService: D){
+        return new AppService<never,D>(dependenciesService,{});
+    }
 }

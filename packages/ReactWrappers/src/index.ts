@@ -1,2 +1,2 @@
 export {SimpleLayout} from './SimpleLayout';
-export {createApp} from './createApp';
+export {LayoutProps, AppService} from './createApp';

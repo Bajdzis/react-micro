@@ -1,3 +1,4 @@
+import React from "react";
 import { LayoutProps } from "./createApp";
 
 export const SimpleLayout: React.FC<LayoutProps<'Menu'|'Content'|'Footer'>> = ({slots}) => {
@@ -5,13 +6,19 @@ export const SimpleLayout: React.FC<LayoutProps<'Menu'|'Content'|'Footer'>> = ({
 
     return <div>
         <header>
-            <Menu/>
+            <React.Suspense fallback={'loading'}>
+                <Menu/>
+            </React.Suspense>
         </header>
         <main>
-            <Content/>
+            <React.Suspense fallback={'loading'}>
+                <Content/>
+            </React.Suspense>
         </main>
         <footer>
-            <Footer/>
+            <React.Suspense fallback={'loading'}>
+                <Footer/>
+            </React.Suspense>
         </footer>
     </div>
 }
