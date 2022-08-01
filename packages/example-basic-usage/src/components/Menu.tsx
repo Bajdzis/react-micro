@@ -1,3 +1,4 @@
+
 export function Menu ({
     dependencies
 }: {
@@ -6,8 +7,14 @@ export function Menu ({
             language: {
                 menuTitle: string;
             }
+        },
+        pubsubGlobal: {
+            emitAction: (type:any, payload:any) => void
         }
     }
 }) {
-    return <div>{dependencies.config.language.menuTitle}</div>;
+
+    return <div onClick={() => {
+        dependencies.pubsubGlobal.emitAction('clickElement', 'sssss')
+    }}>{dependencies.config.language.menuTitle}</div>;
 };

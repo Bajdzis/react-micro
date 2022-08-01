@@ -5,6 +5,7 @@
   "dependencies": {
     "@react-micro/dependencies-service": "^1.0.0",
     "@react-micro/logger-service": "^1.0.0",
+    "@react-micro/pub-sub": "^1.0.0",
     "@react-micro/react-wrappers": "^1.0.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",

@@ -8,7 +8,7 @@ import { dependencies } from './dependencies';
     const Content = await import('./components/Content');
     return Content.default;
   },[])
-  .addSlot('Menu', () => Menu, ['config'])
-  .addSlot('Footer',  () => Footer,[])
+  .addSlot('Menu', () => Menu, ['config', 'pubsubGlobal'])
+  .addSlot('Footer',  () => Footer,['pubsubGlobalSubscriber'])
 
 export const App = appCreator.createApp(SimpleLayout);
