@@ -1,9 +1,6 @@
+import { LayoutProps } from "@react-micro/layouts";
 import { DependenciesService, DependenciesServiceKey, DependenciesServiceObj } from "@react-micro/dependencies-service";
 import React from "react";
-
-export interface LayoutProps<RootSlotKeys extends string> {
-    slots: {[key in RootSlotKeys]: React.ComponentType<{}>}
-}
 
 export class AppService<SlotKeys extends string, D extends DependenciesService<any>> {
     private dependenciesService: D;
@@ -58,8 +55,8 @@ export class AppService<SlotKeys extends string, D extends DependenciesService<a
         return new AppService<SlotKeys | SlotKey, D>(this.dependenciesService, newSlots);
     }
 
-    createApp<Slots extends SlotKeys>(Layout: React.FC<LayoutProps<Slots>>) {
-        return () => <Layout slots={this.slots}/>;
+    createApp<Slots extends SlotKeys>(Layout: React.FC<LayoutProps<Slots>>, fallback?: React.ReactElement) {
+        return () => <Layout slots={this.slots} fallback={fallback} />;
     }
 
     static createAppCreator<D extends DependenciesService<any>>(dependenciesService: D){
