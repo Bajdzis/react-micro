@@ -4,10 +4,7 @@ import { Menu } from './components/Menu';
 import { dependencies } from './dependencies';
 
  const appCreator = AppService.createAppCreator(dependencies)
-  .addSlot('Content', async () => {
-    const Content = await import('./components/Content');
-    return Content.default;
-  },[])
+  .addSlotImport('Content', () => import('./components/Content'), [])
   .addSlot('Menu', () => Menu, ['config', 'pubsubGlobal'])
   .addSlot('Footer',  () => Footer,['pubsubGlobalSubscriber'])
 

@@ -14,6 +14,21 @@ export class AppService<SlotKeys extends string, D extends DependenciesService<a
         this.dependenciesService = dependenciesService;
     }
 
+    addSlotImport<
+        SlotKey extends string,
+        DKey extends DependenciesServiceKey<D>[],
+        DependenciesComponent extends Pick<DependenciesServiceObj<D>, DKey[number]>,
+        Component extends React.ComponentType< {
+            dependencies: DependenciesComponent;
+        } >
+    >(key: SlotKey, componentCreator: () => Promise<{default :Component}>, depts: DKey) {
+
+        return this.addSlot<SlotKey,DKey,DependenciesComponent,Component>(key, async () => {
+            const module = await componentCreator();
+            return module.default;
+        }, depts)
+    }
+
     addSlot<
         SlotKey extends string,
         DKey extends DependenciesServiceKey<D>[],
