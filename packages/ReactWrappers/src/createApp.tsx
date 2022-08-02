@@ -5,7 +5,7 @@ export interface LayoutProps<RootSlotKeys extends string> {
     slots: {[key in RootSlotKeys]: React.ComponentType<{}>}
 }
 
-export class AppService<SlotKeys extends string, D extends DependenciesService<any,any>> {
+export class AppService<SlotKeys extends string, D extends DependenciesService<any>> {
     private dependenciesService: D;
     private slots: {[key in SlotKeys]: React.ComponentType<{}>};
 
@@ -47,7 +47,7 @@ export class AppService<SlotKeys extends string, D extends DependenciesService<a
         return () => <Layout slots={this.slots}/>;
     }
 
-    static createAppCreator<D extends DependenciesService<any, any>>(dependenciesService: D){
+    static createAppCreator<D extends DependenciesService<any>>(dependenciesService: D){
         return new AppService<never,D>(dependenciesService,{});
     }
 }

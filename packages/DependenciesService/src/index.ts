@@ -6,11 +6,13 @@ type Creators<T> = { [P in keyof T]: () => Promise<T[P]>; };
 
 type DuringCreators<T> = { [P in keyof T]?: Promise<T[P]>; };
 
-export type DependenciesServiceObj<T extends DependenciesService<any,any>> =  T extends DependenciesService<any,infer R> ? R : any;
+export type DependenciesServiceObj<T extends DependenciesService<any>> =  T extends DependenciesService<infer R> ? R : any;
 
-export type DependenciesServiceKey<T extends DependenciesService<any,any>> =  T extends DependenciesService<infer R,any> ? R : any;
+export type DependenciesServiceKey<T extends DependenciesService<{[key: string]:any}>> =  T extends DependenciesService<infer R> ? keyof R : any;
 
-export class DependenciesService<Keys extends string, Obj extends {[key in Keys]:any}> {
+// type PickImportsKeys<T extends {default:[any, any, any]}[]> =  T extends {default:[infer R, any, any]}[] ? R : any;
+
+export class DependenciesService<Obj extends {[key: string]:any}> {
 
     private creators: Creators<Obj>;
     private during: DuringCreators<Obj>;
@@ -22,7 +24,7 @@ export class DependenciesService<Keys extends string, Obj extends {[key in Keys]
         this.during = during;
     }
 
-    public async getDependency<T extends Keys>(key: T): Promise<Obj[T]> {
+    public async getDependency<T extends (keyof Obj)>(key: T): Promise<Obj[T]> {
         const value = this.values[key];
         if(value !== undefined) {
             return value as Obj[T];
@@ -41,7 +43,7 @@ export class DependenciesService<Keys extends string, Obj extends {[key in Keys]
         return createdValue
     }
 
-    public async getDependencies <T extends Keys, Result = Pick<Obj,T>>(keys: T[]): Promise<Result>  {
+    public async getDependencies <T extends (keyof Obj), Result = Pick<Obj,T>>(keys: T[]): Promise<Result>  {
         const arr = await Promise.all(keys.map((key) => {
             return this.getDependency(key).then(data => [key,data] as [T, Obj[T]]);
         }));
@@ -57,8 +59,37 @@ export class DependenciesService<Keys extends string, Obj extends {[key in Keys]
         return obj as Result;
     }
 
+    async registerLazyImport<
+        DependencyKeys extends (keyof Obj)[],
+        T extends string,
+        T2 extends (dependency: Pick<Obj,DependencyKeys[number]>) => Promise<any>,
+    >(module: Promise<{default:[T, T2, DependencyKeys]}>){
+
+        const [name, creator, depts] = (await module).default;
+        return this.registerLazyValue(name,creator, depts);
+    }
+
+    // async registerLazyImportArray<
+    //     DependencyKeys extends (keyof Obj) | PickImportsKeys<AllImports>,
+    //     AllImports extends {default:[T, T2, DependencyKeys]}[],
+    //     T extends string,
+    //     T2 extends (dependency: Pick<Obj,DependencyKeys>) => Promise<any>,
+    // >(module: Promise<AllImports>){
+
+    //     const [name, creator, depts] = (await module).default;
+    //     return this.registerLazyValue(name,creator, depts);
+    // }
+
+    registerLazyValueArray<
+        DependencyKeys extends (keyof Obj)[],
+        T extends string,
+        T2 extends (dependency: Pick<Obj,DependencyKeys[number]>) => Promise<any>,
+    >([name, creator, depts]: [T, T2, DependencyKeys]){
+        return this.registerLazyValue(name,creator, depts);
+    }
+
     registerLazyValue<
-        DependencyKeys extends Keys[],
+        DependencyKeys extends (keyof Obj)[],
         T extends string,
         T2 extends (dependency: Pick<Obj,DependencyKeys[number]>) => Promise<any>,
     T3 extends ReturnPromiseType<T2>
@@ -71,7 +102,7 @@ export class DependenciesService<Keys extends string, Obj extends {[key in Keys]
             }
         } as {[key in T]: () => Promise<T3> }
 
-        return new DependenciesService<Keys | T, Obj & {[key in T]: T3 } >({}, {
+        return new DependenciesService<Obj & {[key in T]: T3 } >({}, {
             ...this.creators,
             ...newCreator
         }, this.during as DuringCreators<Obj & {[key in T]: T3 }>);
@@ -90,11 +121,11 @@ export class DependenciesService<Keys extends string, Obj extends {[key in Keys]
             ...newCreator
         } as Creators< Obj & {[key in T]: T3 }>
 
-        return new DependenciesService<Keys | T, Obj & {[key in T]: T3 } >({}, current,this.during  as DuringCreators<Obj & {[key in T]: T3 }>);
+        return new DependenciesService<Obj & {[key in T]: T3 } >({}, current,this.during  as DuringCreators<Obj & {[key in T]: T3 }>);
     }
 
     registerClassService<
-        DependencyKeys extends Keys[],
+        DependencyKeys extends (keyof Obj)[],
         T extends string,
         T2 extends new (dependency: Pick<Obj,DependencyKeys[number]>) => any,
     >(name: T, ValueClass: T2, depts: DependencyKeys) {
@@ -106,13 +137,13 @@ export class DependenciesService<Keys extends string, Obj extends {[key in Keys]
             }
         } as {[key in T]: () => Promise<ReturnConstructorType<T2>> }
 
-        return new DependenciesService<Keys | T, Obj & {[key in T]: ReturnConstructorType<T2> }>({}, {
+        return new DependenciesService<Obj & {[key in T]: ReturnConstructorType<T2> }>({}, {
             ...this.creators,
             ...newCreator
         },this.during  as DuringCreators<Obj & {[key in T]: ReturnConstructorType<T2> }>);
     }
 
-    aliasService<T extends Keys, T2 extends string>(name: T,newName:T2): DependenciesService<Keys | T2, Obj & {[key in T2]: Obj[T] }> {
+    aliasService<T extends (keyof Obj), T2 extends string>(name: T,newName:T2): DependenciesService<Obj & {[key in T2]: Obj[T] }> {
 
         const newCreator = {
             [newName]: this.creators[name]
@@ -128,10 +159,10 @@ export class DependenciesService<Keys extends string, Obj extends {[key in Keys]
             ...newCreator
         } as Creators< Obj & {[key in T2]: Obj[T] }>
 
-        return new DependenciesService<Keys | T2, Obj & {[key in T2]: Obj[T] }>(values, current, this.during as DuringCreators<Obj & {[key in T2]: Obj[T] }>);
+        return new DependenciesService<Obj & {[key in T2]: Obj[T] }>(values, current, this.during as DuringCreators<Obj & {[key in T2]: Obj[T] }>);
     }
 
     static createDependenciesService(){
-        return new DependenciesService<never, {}>({},{},{});
+        return new DependenciesService<{}>({},{},{});
     }
 }
