@@ -1,11 +1,16 @@
 import { useEffect } from "react";
+import {PubSubScope} from "@react-micro/pub-sub";
 
 
 export function Footer ({
     dependencies
 }: {
     dependencies: {
-        pubsubGlobalSubscriber: (type:'openPage' | 'clickElement', subscriber: (action: any) => void) => () =>  void
+        pubsubGlobalSubscriber: PubSubScope<{
+            clickElement: {
+                element:'logo'|'nav';
+            },
+        }>['subscribeAction']
     }
 })  {
 

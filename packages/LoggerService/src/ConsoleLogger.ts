@@ -1,6 +1,6 @@
 import { Logger } from "./Logger";
 
-export class ConsoleLogger extends Logger {
+export class ConsoleLogger implements Logger {
     public log(description:string, additional?: { [key: string]: any; } | undefined): void {
         console.log(description, additional);
     }

@@ -8,16 +8,15 @@ export const dependencies = DependenciesService.createDependenciesService()
     .registerClassService('pubsub', PubSub, ['logger'])
     .registerClassService('configService',ConfigService,['logger'])
     .registerLazyValueArray(['config', ({ configService }) => configService.get(),['configService']])
-    .registerLazyValue('pubsubGlobal', async ({ pubsub }) => pubsub.createScope(
+    .registerLazyValue('pubsubGlobal', async ({ pubsub }) => pubsub.createScope<{
+        openPage: 'homepage'|'about-us',
+        clickElement: {
+            element:'logo'|'nav';
+        },
+    }>(
         'global',
-        {
-            openPage: PubSub.createActionCreator<{
-                pageName:'homepage'|'about-us';
-            }>(),
-            clickElement: PubSub.createActionCreator<{
-                element:'logo'|'nav';
-            }>()
-        }),
+        ['openPage', 'clickElement']
+     ),
     ['pubsub'])
     .registerLazyValue('pubsubGlobalSubscriber', async ({ pubsubGlobal }) => {
         return pubsubGlobal.subscribeAction

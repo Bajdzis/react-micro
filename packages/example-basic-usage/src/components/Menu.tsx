@@ -1,3 +1,4 @@
+import { PubSubScope } from "@react-micro/pub-sub";
 
 export function Menu ({
     dependencies
@@ -8,13 +9,17 @@ export function Menu ({
                 menuTitle: string;
             }
         },
-        pubsubGlobal: {
-            emitAction: (type:any, payload:any) => void
-        }
+        pubsubGlobal: PubSubScope<{
+            clickElement: {
+                element:'logo'|'nav';
+            }
+        }>
     }
 }) {
 
     return <div onClick={() => {
-        dependencies.pubsubGlobal.emitAction('clickElement', 'sssss')
+        dependencies.pubsubGlobal.emitAction('clickElement', {
+            element:'nav'
+        })
     }}>{dependencies.config.language.menuTitle}</div>;
 };
