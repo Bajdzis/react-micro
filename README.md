@@ -13,11 +13,11 @@ The main advantages of the solution are framework agnostic, type-safe and deploy
 
 You can use `react-micro` for create site base on CRA, Gatsby or Next.JS. Some packages support react native too.
 
-### Type safe
+### Types safe
 
 All packages check types very strong and required that from your Components and Services.
 
-## Architectures
+## Architecture
 ### Deploy as monolith
 
 Unfortunately we required centralize build and deploy as monolith.
@@ -80,5 +80,7 @@ It is a small component with skeleton of site. Layout receives in props many com
 
 It is a Layout component connected with all dependencies. You can render it in React.
 ## Composite
+
+You can create AppComponent many times and pass it to other AppServiceInstance.
 
 
