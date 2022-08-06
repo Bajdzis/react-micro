@@ -7,20 +7,27 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "Rafał 'Bajdzis' Budzis <rafal@budzis.pl>",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Bajdzis/react-micro.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Bajdzis/react-micro/issues"
+	},
+	"homepage": "https://github.com/Bajdzis/react-micro#readme",
   "license": "ISC",
-  "dependencies": {
-    "typescript": "^4.7.4"
-  },
   "peerDependencies": {
     "@react-micro/dependencies-service": "^1.0.0",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.15"
+    "@types/react": "^18.0.15",
+    "typescript": "^4.7.4"
   }
 }

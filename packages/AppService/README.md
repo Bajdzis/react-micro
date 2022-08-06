@@ -1,4 +1,4 @@
-# React micro
+# React micro / App service
 
 This package is a part of `react-micro` is a collection for create app component.
 ## Instal

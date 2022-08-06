@@ -3,6 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
+  "author": "Rafał 'Bajdzis' Budzis <rafal@budzis.pl>",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Bajdzis/react-micro.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Bajdzis/react-micro/issues"
+	},
+	"homepage": "https://github.com/Bajdzis/react-micro#readme",
+
+  "scripts": {
+    "pub": "npm publish --access public --workspace @react-micro/dependencies-service  --workspace @react-micro/app-service --workspace @react-micro/pub-sub --workspace @react-micro/logger-service --workspace @react-micro/layouts"
+  },
   "workspaces": {
     "packages": [
       "packages/*"

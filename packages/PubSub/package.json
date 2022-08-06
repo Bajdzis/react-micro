@@ -10,7 +10,15 @@
     "build": "tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "Rafał 'Bajdzis' Budzis <rafal@budzis.pl>",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Bajdzis/react-micro.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Bajdzis/react-micro/issues"
+	},
+	"homepage": "https://github.com/Bajdzis/react-micro#readme",
   "license": "ISC",
   "dependencies": {
     "@react-micro/logger-service": "^1.0.0",
